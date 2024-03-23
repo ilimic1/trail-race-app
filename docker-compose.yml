@@ -1,0 +1,22 @@
+version: "3"
+services:
+  race_application_service:
+    build: ./docker/race_application_service/
+    ports:
+      - 80:80
+    links:
+      - db
+    volumes:
+      - ./packages/laravel:/var/www/laravel:cached
+
+  db:
+    image: postgres:16.2
+    ports:
+      - 5432:5432
+    environment:
+      POSTGRES_PASSWORD: ${DB_PASS}
+      POSTGRES_DB: ${DB_NAME}
+      POSTGRES_USER: ${DB_USER}
+    volumes:
+      - ./docker/data:/var/lib/postgresql/data:delegated
+      # - ./docker/db/pgsql:/docker-entrypoint-initdb.d/
