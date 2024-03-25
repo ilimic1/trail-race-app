@@ -1,7 +1,7 @@
 FROM alpine:3.19
 
 # Setup document root
-WORKDIR /var/www/laravel/public
+WORKDIR /var/www/laravel
 
 # Install packages and remove default server definition
 RUN apk add --no-cache \
@@ -42,8 +42,11 @@ COPY config/php.ini ${PHP_INI_DIR}/conf.d/custom.ini
 # Configure supervisord
 COPY config/supervisord.conf /etc/supervisor/conf.d/supervisord.conf
 
+RUN mkdir -p /.composer
+RUN mkdir -p /var/www/laravel/public
+
 # Make sure files/folders needed by the processes are accessable when they run under the nobody user
-RUN chown -R nobody.nobody /var/www/laravel/public /run /var/lib/nginx /var/log/nginx
+RUN chown -R nobody.nobody /.composer /var/www/laravel/public /run /var/lib/nginx /var/log/nginx
 
 # Create symlink for php
 RUN ln -s /usr/bin/php83 /usr/bin/php
