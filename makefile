@@ -1,12 +1,12 @@
 install:
 	docker compose run race_application_service /bin/ash -c "composer install"
-	docker compose run race_application_service /bin/ash -c "php artisan jwt:secret --always-no"
+	docker compose run race_application_service /bin/ash -c "php artisan jwt:secret --force --quiet --no-interaction"
 	docker compose run race_application_service /bin/ash -c "php artisan migrate:fresh && php artisan db:seed"
 	docker compose down
 	npm --prefix ./packages/frontend i
 
 regenerate-jwt-secret:
-	docker compose run race_application_service /bin/ash -c "php artisan jwt:secret --force"
+	docker compose run race_application_service /bin/ash -c "php artisan jwt:secret --force --quiet --no-interaction"
 
 backend:
 	docker compose up
