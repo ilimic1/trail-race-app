@@ -20,9 +20,23 @@ Once you have the project setup you can run the following commands in different 
 
 - `make backend` - run Laravel API
 - `make frontend` - run React SPA
-- `make tests` - run integration tests
+- `make test` - run integration tests
 
 If you haven't changed any of the host/ports in the `.env` files, the backend API is now available at http://localhost:3000/api (healthcheck at http://localhost:3000/up) and the frontend SPA at http://localhost:3001
+
+Example administrator credentials are:
+
+```
+admin@example.com
+pass
+```
+
+Example applicant credentials are:
+
+```
+racer@example.com
+pass
+```
 
 ## Useful commands
 
