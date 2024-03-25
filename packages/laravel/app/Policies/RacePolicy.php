@@ -4,7 +4,6 @@ namespace App\Policies;
 
 use App\Models\Race;
 use App\Models\User;
-use Illuminate\Auth\Access\Response;
 
 class RacePolicy
 {
@@ -13,7 +12,7 @@ class RacePolicy
      */
     public function viewAny(User $user): bool
     {
-        //
+        return $user->isAdministrator() || $user->isApplicant();
     }
 
     /**
@@ -21,7 +20,7 @@ class RacePolicy
      */
     public function view(User $user, Race $race): bool
     {
-        //
+        return $user->isAdministrator() || $user->isApplicant();
     }
 
     /**
@@ -29,7 +28,7 @@ class RacePolicy
      */
     public function create(User $user): bool
     {
-        //
+        return $user->isAdministrator();
     }
 
     /**
@@ -37,7 +36,7 @@ class RacePolicy
      */
     public function update(User $user, Race $race): bool
     {
-        //
+        return $user->isAdministrator();
     }
 
     /**
@@ -45,22 +44,6 @@ class RacePolicy
      */
     public function delete(User $user, Race $race): bool
     {
-        //
-    }
-
-    /**
-     * Determine whether the user can restore the model.
-     */
-    public function restore(User $user, Race $race): bool
-    {
-        //
-    }
-
-    /**
-     * Determine whether the user can permanently delete the model.
-     */
-    public function forceDelete(User $user, Race $race): bool
-    {
-        //
+        return $user->isAdministrator();
     }
 }

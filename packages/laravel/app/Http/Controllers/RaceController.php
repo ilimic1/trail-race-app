@@ -5,62 +5,49 @@ namespace App\Http\Controllers;
 use App\Http\Requests\StoreRaceRequest;
 use App\Http\Requests\UpdateRaceRequest;
 use App\Models\Race;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Gate;
 
 class RaceController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
-    public function index()
+    public function index(Request $request)
     {
-        //
+        Gate::authorize('viewAny', [Race::class]);
+
+        return Race::with('applications')->get();
     }
 
-    /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
-    {
-        //
-    }
-
-    /**
-     * Store a newly created resource in storage.
-     */
     public function store(StoreRaceRequest $request)
     {
-        //
+        Gate::authorize('create', [Race::class]);
+
+        $validated = $request->validated();
+
+        return Race::create($validated);
     }
 
-    /**
-     * Display the specified resource.
-     */
     public function show(Race $race)
     {
-        //
+        Gate::authorize('view', [$race]);
+
+        return $race;
     }
 
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(Race $race)
-    {
-        //
-    }
-
-    /**
-     * Update the specified resource in storage.
-     */
     public function update(UpdateRaceRequest $request, Race $race)
     {
-        //
+        Gate::authorize('update', [$race]);
+
+        $race->fill($request->validated());
+        $race->save();
+
+        return $race;
     }
 
-    /**
-     * Remove the specified resource from storage.
-     */
     public function destroy(Race $race)
     {
-        //
+        Gate::authorize('delete', [$race]);
+        $race->delete();
+
+        return response(['success' => 'Race has been deleted'], 204);
     }
 }

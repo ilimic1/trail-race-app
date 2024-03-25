@@ -3,9 +3,8 @@
 namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
-use Illuminate\Validation\Rule;
 
-class UpdateRaceRequest extends FormRequest
+class StoreApplicationRequest extends FormRequest
 {
     /**
      * Get the validation rules that apply to the request.
@@ -15,8 +14,11 @@ class UpdateRaceRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'name' => 'required|string|min:1|max:255',
-            'distance' => ['required', Rule::in(['5k', '10k', 'HalfMarathon', 'Marathon'])],
+            'first_name' => 'required|string|min:1|max:255',
+            'last_name' => 'required|string|min:1|max:255',
+            'club' => 'nullable|string|min:1|max:255',
+            'user_id' => 'required|exists:users,id',
+            'race_id' => 'required|exists:races,id',
         ];
     }
 }
