@@ -9,8 +9,8 @@
 
 1. Install and update all the requirements above
 2. Clone the repo: `git clone git@github.com:ilimic1/trail-race-app.git`
-3. Setup `.env` files
-4. `make setup`
+3. `cp .env.example .env && cp packages/laravel/.env.example packages/laravel/.env` - setup `.env` files
+4. `make install`
 5. `make backend`
 6. `make frontend`
 

@@ -1,10 +1,18 @@
-setup:
-	docker compose run race_application_service /bin/ash -c "cd /var/www/laravel && composer install"
+install:
+	docker compose run race_application_service /bin/ash -c "composer install"
+	docker compose run race_application_service /bin/ash -c "php artisan jwt:secret --always-no"
+	docker compose run race_application_service /bin/ash -c "php artisan migrate:fresh && php artisan db:seed"
 	docker compose down
 	npm --prefix ./packages/frontend i
+
+regenerate-jwt-secret:
+	docker compose run race_application_service /bin/ash -c "php artisan jwt:secret --force"
 
 backend:
 	docker compose up
 
 frontend:
 	npm --prefix ./packages/frontend run dev
+
+test:
+	docker compose exec race_application_service /bin/ash -c "php artisan test"
