@@ -45,7 +45,3 @@ You can use `docker compose run` to run commands in a new Laravel container, or 
 - `docker compose run race_application_service /bin/ash` - login to the Laravel container (eg. to run artisan commands)
 - `docker compose run race_application_service /bin/ash -c "./vendor/bin/pint"` - run code formatting
 - `docker compose run race_application_service /bin/ash -c "php artisan migrate:fresh && php artisan db:seed"` - drop existing database, run migrations and seed the database
-
-## Improvements
-
-...
