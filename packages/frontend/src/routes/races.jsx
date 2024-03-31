@@ -19,6 +19,20 @@ import {
 } from "../api";
 import { useAuth } from "../hooks/useAuth";
 import { useEffect } from "react";
+import LoaderPage from "../components/LoaderPage";
+import ErrorPage from "../components/ErrorPage";
+import { z } from "zod";
+import { zodResolver } from "@hookform/resolvers/zod";
+import clsx from "clsx";
+
+const createRaceSchema = z.object({
+  name: z
+    .string()
+    .min(1, "Name must be at least 1 character")
+    .max(255, "Name must be at most 255 characters"),
+  distance: z.enum(["5k", "10k", "HalfMarathon", "Marathon"]),
+});
+const updateRaceSchema = createRaceSchema;
 
 const racesListQuery = () =>
   queryOptions({
@@ -154,7 +168,7 @@ export function ListRaces() {
   };
 
   if (isLoadingApplications || isLoadingRaces) {
-    return <div>Loading...</div>;
+    return <LoaderPage />;
   }
 
   if (isErrorApplications || isErrorRaces) {
@@ -245,14 +259,14 @@ export function ListRaces() {
 
 export function ViewRace() {
   const { id } = useParams();
-  const { data: race, isLoading, isError } = useRace({ id });
+  const { data: race, isLoading, isError, error } = useRace({ id });
 
   if (isLoading) {
-    return <div>Loading...</div>;
+    return <LoaderPage />;
   }
 
   if (isError) {
-    return <div>Error.</div>;
+    return <ErrorPage error={error} />;
   }
 
   return (
@@ -293,8 +307,9 @@ export function CreateRace() {
   const {
     register,
     handleSubmit,
-    // formState: { errors },
+    formState: { errors },
   } = useForm({
+    resolver: zodResolver(createRaceSchema),
     defaultValues: {
       name: "",
       distance: "",
@@ -320,26 +335,37 @@ export function CreateRace() {
                 Name
               </label>
               <input
-                className="form-control"
+                className={clsx("form-control", { "is-invalid": errors.name })}
                 id="name"
-                {...register("name", { required: true })}
+                {...register("name")}
+                data-1p-ignore
               />
+              {errors.name && (
+                <div className="invalid-feedback">{errors.name.message}</div>
+              )}
             </div>
             <div className="mb-3">
               <label htmlFor="distance" className="form-label">
                 Distance
               </label>
               <select
-                className="form-select"
+                className={clsx("form-control", {
+                  "is-invalid": errors.distance,
+                })}
                 id="distance"
                 aria-label="Distance"
-                {...register("distance", { required: true })}
+                {...register("distance")}
               >
                 <option value="5k">5k</option>
                 <option value="10k">10k</option>
                 <option value="HalfMarathon">HalfMarathon</option>
                 <option value="Marathon">Marathon</option>
               </select>
+              {errors.distance && (
+                <div className="invalid-feedback">
+                  {errors.distance.message}
+                </div>
+              )}
             </div>
             <button type="submit" className="btn btn-primary">
               Create New Race
@@ -361,8 +387,9 @@ export function UpdateRace() {
     register,
     handleSubmit,
     reset,
-    // formState: { errors },
+    formState: { errors },
   } = useForm({
+    resolver: zodResolver(updateRaceSchema),
     defaultValues: {
       name: race ? race.name : "",
       distance: race ? race.distance : "",
@@ -388,7 +415,7 @@ export function UpdateRace() {
   };
 
   if (isLoading) {
-    return <div>Loading...</div>;
+    return <LoaderPage />;
   }
 
   if (isError) {
@@ -406,26 +433,37 @@ export function UpdateRace() {
                 Name
               </label>
               <input
-                className="form-control"
+                className={clsx("form-control", { "is-invalid": errors.name })}
                 id="name"
-                {...register("name", { required: true })}
+                {...register("name")}
+                data-1p-ignore
               />
+              {errors.name && (
+                <div className="invalid-feedback">{errors.name.message}</div>
+              )}
             </div>
             <div className="mb-3">
               <label htmlFor="distance" className="form-label">
                 Distance
               </label>
               <select
-                className="form-select"
+                className={clsx("form-control", {
+                  "is-invalid": errors.distance,
+                })}
                 id="distance"
                 aria-label="Distance"
-                {...register("distance", { required: true })}
+                {...register("distance")}
               >
                 <option value="5k">5k</option>
                 <option value="10k">10k</option>
                 <option value="HalfMarathon">HalfMarathon</option>
                 <option value="Marathon">Marathon</option>
               </select>
+              {errors.distance && (
+                <div className="invalid-feedback">
+                  {errors.distance.message}
+                </div>
+              )}
             </div>
             <button type="submit" className="btn btn-primary">
               Update Race
@@ -468,7 +506,7 @@ export function CreateApplication() {
   };
 
   if (isLoading) {
-    return <div>Loading...</div>;
+    return <LoaderPage />;
   }
 
   if (isError) {
@@ -537,7 +575,7 @@ export function ListApplications() {
   };
 
   if (isLoading) {
-    return <div>Loading...</div>;
+    return <LoaderPage />;
   }
 
   if (isError) {

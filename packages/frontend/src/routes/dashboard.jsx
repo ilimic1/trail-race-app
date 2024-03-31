@@ -1,8 +1,10 @@
-import { Link, Navigate, Outlet } from "react-router-dom";
+import { Link, Navigate, Outlet, useNavigate } from "react-router-dom";
+import Footer from "../components/Footer";
 import { useAuth } from "../hooks/useAuth";
 
 export default function Dashboard() {
   const { user, logout } = useAuth();
+  const navigate = useNavigate();
 
   console.log("Dashboard::user", user);
 
@@ -10,9 +12,13 @@ export default function Dashboard() {
     return <Navigate to="/login" />;
   }
 
-  const handleLogout = async (e) => {
+  const handleLogout = (e) => {
     e.preventDefault();
-    await logout();
+    logout.mutate(undefined, {
+      onSuccess: () => {
+        navigate("/login");
+      },
+    });
   };
 
   return (

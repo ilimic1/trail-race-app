@@ -1,10 +1,10 @@
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import "bootstrap/dist/css/bootstrap.min.css";
 import React from "react";
 import ReactDOM from "react-dom/client";
 import { RouterProvider, createBrowserRouter } from "react-router-dom";
 import ErrorPage from "./error-page";
-import { AuthProvider } from "./hooks/useAuth";
+import { AuthProvider, meLoader } from "./hooks/useAuth";
+import Dashboard from "./routes/dashboard";
 import LoginPage from "./routes/login";
 import {
   CreateApplication,
@@ -14,7 +14,7 @@ import {
   UpdateRace,
   ViewRace,
 } from "./routes/races";
-import Dashboard from "./routes/dashboard";
+import "./scss/styles.scss";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -33,7 +33,7 @@ const router = createBrowserRouter([
       </AuthProvider>
     ),
     errorElement: <ErrorPage />,
-    // loader: rootLoader(queryClient),
+    loader: meLoader(queryClient),
     children: [
       {
         index: true,

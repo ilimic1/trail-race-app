@@ -1,6 +1,10 @@
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import {
+  queryOptions,
+  useMutation,
+  useQuery,
+  useQueryClient,
+} from "@tanstack/react-query";
 import { createContext, useContext, useMemo } from "react";
-import { useNavigate } from "react-router-dom";
 import {
   getMe,
   login as loginMutationFn,
@@ -10,57 +14,54 @@ import { useLocalStorageToken } from "./useLocalStorageToken";
 
 const AuthContext = createContext();
 
-export const AuthProvider = ({ children }) => {
-  const [token, setToken] = useLocalStorageToken(null);
-  const navigate = useNavigate();
-
-  const queryClient = useQueryClient();
-
-  const { data: user } = useQuery({
+const meQuery = () =>
+  queryOptions({
     queryKey: ["me"],
     queryFn: () => getMe(),
   });
 
-  const { mutate: loginMutation } = useMutation({
+export const meLoader = (queryClient) => async () => {
+  try {
+    // ensure the "me" query is in the cache before we render the app
+    await queryClient.ensureQueryData(meQuery());
+  } catch (error) {
+    // noop
+  }
+  return null;
+};
+
+export const AuthProvider = ({ children }) => {
+  console.log("AuthProvider");
+
+  const [token, setToken] = useLocalStorageToken(null);
+  const queryClient = useQueryClient();
+
+  const { data: user } = useQuery(meQuery());
+
+  const login = useMutation({
     mutationFn: (data) => loginMutationFn(data),
+    onSuccess: (data) => {
+      setToken(data.access_token);
+      queryClient.removeQueries({ queryKey: ["me"], exact: true });
+    },
   });
 
-  const { mutate: logoutMutation } = useMutation({
+  const logout = useMutation({
     mutationFn: () => logoutMutationFn(),
+    onSuccess: () => {
+      setToken(null);
+      queryClient.removeQueries({ queryKey: ["me"], exact: true });
+    },
   });
-
-  const login = async (email, password) => {
-    loginMutation(
-      { email, password },
-      {
-        onSuccess: (data) => {
-          setToken(data.access_token);
-          queryClient.invalidateQueries("me");
-          navigate("/");
-        },
-      },
-    );
-  };
-
-  const logout = () => {
-    logoutMutation(undefined, {
-      onSuccess: () => {
-        setToken(null);
-        queryClient.invalidateQueries("me");
-        // navigate("/login", { replace: true });
-        window.location.pathname = "/login";
-      },
-    });
-  };
 
   const value = useMemo(
     () => ({
-      token,
-      user,
       login,
       logout,
+      token,
+      user,
     }),
-    [user],
+    [login, logout, token, user],
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
