@@ -69,10 +69,7 @@ export default function Dashboard() {
         <Outlet />
       </div>
 
-      <div className="container">
-        <hr />
-        <div className="text-center">&copy; 2024. Trail Race App</div>
-      </div>
+      <Footer />
     </>
   );
 }
