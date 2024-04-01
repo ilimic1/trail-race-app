@@ -21,7 +21,7 @@ class RaceController extends Controller
             $qb->withTrashed();
         }
 
-        return $qb->paginate(5);
+        return $qb->paginate(10);
     }
 
     public function store(StoreRaceRequest $request)
