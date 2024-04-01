@@ -19,8 +19,8 @@ export const getMe = async () => {
   return response.data;
 };
 
-export const getRaces = async () => {
-  const response = await request("get", "/api/races");
+export const getRaces = async ({ page }) => {
+  const response = await request("get", `/api/races?${qs.stringify({ page })}`);
   return response.data;
 };
 
@@ -41,6 +41,16 @@ export const updateRace = async ({ id, ...data }) => {
 
 export const deleteRace = async ({ id }) => {
   const response = await request("delete", `/api/races/${id}`);
+  return response.data;
+};
+
+export const restoreRace = async ({ id }) => {
+  const response = await request("put", `/api/races/${id}/restore`);
+  return response.data;
+};
+
+export const deletePermanentlyRace = async ({ id }) => {
+  const response = await request("delete", `/api/races/${id}/force-delete`);
   return response.data;
 };
 

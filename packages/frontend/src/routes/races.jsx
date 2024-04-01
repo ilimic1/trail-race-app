@@ -1,29 +1,32 @@
+import { zodResolver } from "@hookform/resolvers/zod";
 import {
+  keepPreviousData,
   queryOptions,
   useMutation,
   useQuery,
   useQueryClient,
 } from "@tanstack/react-query";
+import clsx from "clsx";
+import { useEffect, useState } from "react";
 import Button from "react-bootstrap/Button";
 import { useForm } from "react-hook-form";
-import { Link, useNavigate, useParams } from "react-router-dom";
+import { Link, useLocation, useNavigate, useParams } from "react-router-dom";
+import { z } from "zod";
 import {
   createApplication,
   createRace,
   deleteApplication,
+  deletePermanentlyRace,
   deleteRace,
   getRace,
   getRaces,
   listApplications,
+  restoreRace,
   updateRace,
 } from "../api";
-import { useAuth } from "../hooks/useAuth";
-import { useEffect } from "react";
-import LoaderPage from "../components/LoaderPage";
 import ErrorPage from "../components/ErrorPage";
-import { z } from "zod";
-import { zodResolver } from "@hookform/resolvers/zod";
-import clsx from "clsx";
+import LoaderPage from "../components/LoaderPage";
+import { useAuth } from "../hooks/useAuth";
 
 const createRaceSchema = z.object({
   name: z
@@ -34,12 +37,13 @@ const createRaceSchema = z.object({
 });
 const updateRaceSchema = createRaceSchema;
 
-const racesListQuery = () =>
+const racesListQuery = ({ page }) =>
   queryOptions({
-    queryKey: ["races", "list", "all"],
+    queryKey: ["races", "list", page],
     queryFn: () => {
-      return getRaces();
+      return getRaces({ page });
     },
+    placeholderData: keepPreviousData,
   });
 
 const raceQuery = ({ id }) =>
@@ -58,8 +62,10 @@ const listApplicationsQuery = (data) =>
     },
   });
 
-const useRaces = () => {
-  return useQuery(racesListQuery());
+const useRaces = ({ page }) => {
+  const { data, ...rest } = useQuery(racesListQuery({ page }));
+  console.log("data", data);
+  return { ...rest, data: data?.data, hasMore: !!data?.next_page_url };
 };
 
 const useRace = ({ id }) => {
@@ -93,6 +99,28 @@ const useDeleteRace = () => {
 
   return useMutation({
     mutationFn: (data) => deleteRace(data),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["races"] });
+    },
+  });
+};
+
+const useRestoreRace = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (data) => restoreRace(data),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["races"] });
+    },
+  });
+};
+
+const useDeletePermanentlyRace = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (data) => deletePermanentlyRace(data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["races"] });
     },
@@ -149,21 +177,42 @@ const useDeleteApplication = () => {
 
 export function ListRaces() {
   const { user } = useAuth();
+  const navigate = useNavigate();
+  const { search } = useLocation();
+  const page = parseInt(new URLSearchParams(search).get("page")) || 1;
   const {
     data: applications,
     isLoading: isLoadingApplications,
     isError: isErrorApplications,
   } = useApplications({ user_id: user.id });
+  // const [page, setPage] = useState(1);
   const {
     data: races,
     isLoading: isLoadingRaces,
     isError: isErrorRaces,
-  } = useRaces();
+    isPlaceholderData: isPlaceholderDataRaces,
+    hasMore: hasMoreRaces,
+  } = useRaces({ page });
+  console.log("races", races);
   const deleteRace = useDeleteRace();
+  const restoreRace = useRestoreRace();
+  const deletePermanentlyRace = useDeletePermanentlyRace();
 
   const handleDelete = async (id) => {
     if (confirm("Are you sure you want to delete this race?")) {
       deleteRace.mutate({ id });
+    }
+  };
+
+  const handleRestore = async (id) => {
+    if (confirm("Are you sure you want to restore this race?")) {
+      restoreRace.mutate({ id });
+    }
+  };
+
+  const handleDeletePermanently = async (id) => {
+    if (confirm("Are you sure you want to permanently delete this race?")) {
+      deletePermanentlyRace.mutate({ id });
     }
   };
 
@@ -183,10 +232,20 @@ export function ListRaces() {
           <table className="table table-hover align-middle">
             <thead>
               <tr>
-                <th scope="col">Name</th>
-                <th scope="col">Distance</th>
-                <th scope="col">Created</th>
-                <th scope="col" className="text-center w-25">
+                <th scope="col" style={{ width: "25%" }}>
+                  Name
+                </th>
+                <th scope="col" style={{ width: "25%" }}>
+                  Distance
+                </th>
+                <th scope="col" style={{ width: "25%" }}>
+                  Created
+                </th>
+                <th
+                  scope="col"
+                  className="text-center"
+                  style={{ width: "25%" }}
+                >
                   Actions
                 </th>
               </tr>
@@ -211,18 +270,38 @@ export function ListRaces() {
                             >
                               View
                             </Link>{" "}
-                            <Link
-                              className="btn btn-primary btn-sm"
-                              to={`/races/${race.id}/update`}
-                            >
-                              Update
-                            </Link>{" "}
-                            <Button
-                              className="btn btn-primary btn-sm"
-                              onClick={() => handleDelete(race.id)}
-                            >
-                              Delete
-                            </Button>
+                            {!race.deleted_at && (
+                              <Link
+                                className="btn btn-primary btn-sm"
+                                to={`/races/${race.id}/update`}
+                              >
+                                Update
+                              </Link>
+                            )}{" "}
+                            {!race.deleted_at && (
+                              <Button
+                                className="btn btn-primary btn-sm"
+                                onClick={() => handleDelete(race.id)}
+                              >
+                                Delete
+                              </Button>
+                            )}{" "}
+                            {race.deleted_at && (
+                              <Button
+                                className="btn btn-primary btn-sm"
+                                onClick={() => handleRestore(race.id)}
+                              >
+                                Restore
+                              </Button>
+                            )}{" "}
+                            {race.deleted_at && (
+                              <Button
+                                className="btn btn-primary btn-sm"
+                                onClick={() => handleDeletePermanently(race.id)}
+                              >
+                                Delete Permanently
+                              </Button>
+                            )}
                           </>
                         )}
                         {user.role === "applicant" &&
@@ -251,6 +330,40 @@ export function ListRaces() {
               )}
             </tbody>
           </table>
+
+          <nav aria-label="Page navigation example">
+            <ul className="pagination justify-content-center">
+              <li className={clsx("page-item", { disabled: page === 1 })}>
+                <button
+                  onClick={() => {
+                    navigate(`?page=${Math.max(page - 1, 1)}`);
+                  }}
+                  disabled={page === 1}
+                  className="page-link"
+                >
+                  Previous
+                </button>
+              </li>
+              <li className={clsx("page-item", { disabled: !hasMoreRaces })}>
+                <button
+                  // onClick={() => {
+                  //   if (!isPlaceholderDataRaces && hasMoreRaces) {
+                  //     setPage((prev) => prev + 1);
+                  //   }
+                  // }}
+                  onClick={() => {
+                    if (!isPlaceholderDataRaces && hasMoreRaces) {
+                      navigate(`?page=${page + 1}`);
+                    }
+                  }}
+                  disabled={isPlaceholderDataRaces || !hasMoreRaces}
+                  className="page-link"
+                >
+                  Next
+                </button>
+              </li>
+            </ul>
+          </nav>
         </div>
       </div>
     </div>
@@ -291,6 +404,14 @@ export function ViewRace() {
               <tr>
                 <td>Created</td>
                 <td>{race.created_at}</td>
+              </tr>
+              <tr>
+                <td>Updated</td>
+                <td>{race.updated_at}</td>
+              </tr>
+              <tr>
+                <td>Deleted</td>
+                <td>{race.deleted_at}</td>
               </tr>
             </tbody>
           </table>

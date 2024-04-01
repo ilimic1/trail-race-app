@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Http\Requests\StoreRaceRequest;
 use App\Http\Requests\UpdateRaceRequest;
 use App\Models\Race;
+use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Gate;
 
@@ -14,7 +15,13 @@ class RaceController extends Controller
     {
         Gate::authorize('viewAny', [Race::class]);
 
-        return Race::with('applications')->get();
+        $qb = Race::query()->orderByDesc('id');
+
+        if ($request->user()->isAdministrator()) {
+            $qb->withTrashed();
+        }
+
+        return $qb->paginate(5);
     }
 
     public function store(StoreRaceRequest $request)
@@ -26,7 +33,7 @@ class RaceController extends Controller
         return Race::create($validated);
     }
 
-    public function show(Race $race)
+    public function show(Request $request, Race $race)
     {
         Gate::authorize('view', [$race]);
 
@@ -49,5 +56,23 @@ class RaceController extends Controller
         $race->delete();
 
         return response(['success' => 'Race has been deleted'], 204);
+    }
+
+    public function restore(Race $race)
+    {
+        Gate::authorize('restore', [$race]);
+
+        $race->deleted_at = null;
+        $race->save();
+
+        return $race;
+    }
+
+    public function forceDestroy(Race $race)
+    {
+        Gate::authorize('forceDelete', [$race]);
+        $race->forceDelete();
+
+        return response(['success' => 'Race has been force deleted'], 204);
     }
 }

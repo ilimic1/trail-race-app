@@ -20,7 +20,7 @@ class RacePolicy
      */
     public function view(User $user, Race $race): bool
     {
-        return $user->isAdministrator() || $user->isApplicant();
+        return $user->isAdministrator();
     }
 
     /**
@@ -43,6 +43,16 @@ class RacePolicy
      * Determine whether the user can delete the model.
      */
     public function delete(User $user, Race $race): bool
+    {
+        return $user->isAdministrator();
+    }
+
+    public function restore(User $user, Race $race): bool
+    {
+        return $user->isAdministrator();
+    }
+
+    public function forceDelete(User $user, Race $race): bool
     {
         return $user->isAdministrator();
     }

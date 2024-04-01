@@ -26,9 +26,11 @@ Route::group([
 ], function ($router) {
     Route::get('/races', [RaceController::class, 'index']);
     Route::post('/races', [RaceController::class, 'store']);
-    Route::get('/races/{race}', [RaceController::class, 'show']);
+    Route::get('/races/{race}', [RaceController::class, 'show'])->withTrashed();
     Route::put('/races/{race}', [RaceController::class, 'update']);
     Route::delete('/races/{race}', [RaceController::class, 'destroy']);
+    Route::put('/races/{race}/restore', [RaceController::class, 'restore'])->withTrashed();
+    Route::delete('/races/{race}/force-delete', [RaceController::class, 'forceDestroy'])->withTrashed();
 
     Route::get('/applications', [ApplicationController::class, 'index']);
     Route::post('/applications', [ApplicationController::class, 'store']);
