@@ -20,7 +20,7 @@ class RacePolicy
      */
     public function view(User $user, Race $race): bool
     {
-        return $user->isAdministrator();
+        return $user->isAdministrator() || $user->isApplicant();
     }
 
     /**
