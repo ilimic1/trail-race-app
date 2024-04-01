@@ -7,12 +7,16 @@ export default function ErrorPage() {
   // TODO: Implement better error page.
 
   return (
-    <div id="error-page">
-      <h1>Oops!</h1>
-      <p>Sorry, an unexpected error has occurred.</p>
-      <p>
-        <i>{error.statusText || error.message}</i>
-      </p>
+    <div className="container">
+      <div className="row justify-content-start">
+        <div className="col-5">
+          <h2 className="h3">Oops!</h2>
+          <p>Sorry, an unexpected error has occurred.</p>
+          <p>
+            <i>{error.statusText || error.message}</i>
+          </p>
+        </div>
+      </div>
     </div>
   );
 }
