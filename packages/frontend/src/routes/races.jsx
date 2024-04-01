@@ -37,6 +37,21 @@ const createRaceSchema = z.object({
 });
 const updateRaceSchema = createRaceSchema;
 
+const applyForRaceSchema = z.object({
+  first_name: z
+    .string()
+    .min(1, "First name must be at least 1 character")
+    .max(255, "First name must be at most 255 characters"),
+  last_name: z
+    .string()
+    .min(1, "Last name must be at least 1 character")
+    .max(255, "Last name must be at most 255 characters"),
+  club: z
+    .string()
+    .max(255, "Club must be at most 255 characters")
+    .optional(),
+});
+
 const racesListQuery = ({ page }) =>
   queryOptions({
     queryKey: ["races", "list", page],
@@ -606,8 +621,9 @@ export function CreateApplication() {
   const {
     register,
     handleSubmit,
-    // formState: { errors },
+    formState: { errors },
   } = useForm({
+    resolver: zodResolver(applyForRaceSchema),
     defaultValues: {
       first_name: user.first_name,
       last_name: user.last_name,
@@ -645,30 +661,39 @@ export function CreateApplication() {
                 First Name
               </label>
               <input
-                className="form-control"
+                className={clsx("form-control", { "is-invalid": errors.first_name })}
                 id="first_name"
-                {...register("first_name", { required: true, max: 255 })}
+                {...register("first_name")}
               />
+              {errors.first_name && (
+                <div className="invalid-feedback">{errors.first_name.message}</div>
+              )}
             </div>
             <div className="mb-3">
               <label htmlFor="last_name" className="form-label">
                 Last Name
               </label>
               <input
-                className="form-control"
+                className={clsx("form-control", { "is-invalid": errors.last_name })}
                 id="last_name"
-                {...register("last_name", { required: true, max: 255 })}
+                {...register("last_name")}
               />
+              {errors.last_name && (
+                <div className="invalid-feedback">{errors.last_name.message}</div>
+              )}
             </div>
             <div className="mb-3">
               <label htmlFor="club" className="form-label">
                 Club
               </label>
               <input
-                className="form-control"
+                className={clsx("form-control", { "is-invalid": errors.club })}
                 id="club"
-                {...register("club", { required: false, max: 255 })}
+                {...register("club")}
               />
+              {errors.club && (
+                <div className="invalid-feedback">{errors.club.message}</div>
+              )}
             </div>
             <button type="submit" className="btn btn-primary">
               Apply for Race
