@@ -111,13 +111,13 @@ class DatabaseSeeder extends Seeder
         $races = [
             [
                 'id' => '9ba1b537-d245-4d13-b9e4-4efe5793dd06',
-                'name' => 'Trail Race 5K',
+                'name' => 'Trail Race 5K #1',
                 'distance' => '5k',
                 'applications' => [],
             ],
             [
                 'id' => '9ba1b537-d488-410c-b413-2ffb136ee73f',
-                'name' => 'Trail Race 10K',
+                'name' => 'Trail Race 10K #1',
                 'distance' => '10k',
                 'applications' => [
                     [
@@ -128,7 +128,7 @@ class DatabaseSeeder extends Seeder
             ],
             [
                 'id' => '9ba1b537-d4b0-47f9-90a5-8499b92fe10e',
-                'name' => 'Trail Race HalfMarathon',
+                'name' => 'Trail Race HalfMarathon #1',
                 'distance' => 'HalfMarathon',
                 'applications' => [
                     [
@@ -143,7 +143,7 @@ class DatabaseSeeder extends Seeder
             ],
             [
                 'id' => '9ba1b537-d4d2-474a-bf77-1314ba84ca46',
-                'name' => 'Trail Race Marathon',
+                'name' => 'Trail Race Marathon #1',
                 'distance' => 'Marathon',
                 'applications' => [
                     [
@@ -159,6 +159,48 @@ class DatabaseSeeder extends Seeder
                         'email' => 'racer05@example.com',
                     ],
                 ],
+            ],
+            [
+                'id' => '9bb43ad1-3f21-4161-a2b5-88c800a23030',
+                'name' => 'Trail Race 5K #2',
+                'distance' => '5k',
+                'applications' => [],
+            ],
+            [
+                'id' => '9bb43ad6-dd86-48c6-ab2c-0ee183f7f0bd',
+                'name' => 'Trail Race 10K #2',
+                'distance' => '10k',
+                'applications' => [],
+            ],
+            [
+                'id' => '9bb43adc-80da-472f-87a1-6c5f77682dfb',
+                'name' => 'Trail Race HalfMarathon #2',
+                'distance' => 'HalfMarathon',
+                'applications' => [],
+            ],
+            [
+                'id' => '9bb43ae1-2896-427d-9fe1-e0dc23608ac7',
+                'name' => 'Trail Race Marathon #1',
+                'distance' => 'Marathon',
+                'applications' => [],
+            ],
+            [
+                'id' => '9bb43ae8-9488-4f3d-aab4-1173285d9c7e',
+                'name' => 'Trail Race 5K #3',
+                'distance' => '5k',
+                'applications' => [],
+            ],
+            [
+                'id' => '9bb43af1-e772-430a-a4e3-20d69c89d4ee',
+                'name' => 'Trail Race 10K #3',
+                'distance' => '10k',
+                'applications' => [],
+            ],
+            [
+                'id' => '9bb43af7-b485-4ac1-b0dd-9345bdaaa511',
+                'name' => 'Trail Race HalfMarathon #3',
+                'distance' => 'HalfMarathon',
+                'applications' => [],
             ],
         ];
 
