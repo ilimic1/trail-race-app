@@ -50,7 +50,7 @@ export const AuthProvider = ({ children }) => {
     mutationFn: () => logoutMutationFn(),
     onSuccess: () => {
       setToken(null);
-      queryClient.removeQueries({ queryKey: ["me"], exact: true });
+      queryClient.removeQueries();
     },
   });
 
